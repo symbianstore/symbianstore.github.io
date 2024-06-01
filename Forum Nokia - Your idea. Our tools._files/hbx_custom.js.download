@@ -1,0 +1,360 @@
+var _____WB$wombat$assign$function_____ = function(name) {return (self._wb_wombat && self._wb_wombat.local_init && self._wb_wombat.local_init(name)) || self[name]; };
+if (!self.__WB_pmw) { self.__WB_pmw = function(obj) { this.__WB_source = obj; return this; } }
+{
+  let window = _____WB$wombat$assign$function_____("window");
+  let self = _____WB$wombat$assign$function_____("self");
+  let document = _____WB$wombat$assign$function_____("document");
+  let location = _____WB$wombat$assign$function_____("location");
+  let top = _____WB$wombat$assign$function_____("top");
+  let parent = _____WB$wombat$assign$function_____("parent");
+  let frames = _____WB$wombat$assign$function_____("frames");
+  let opener = _____WB$wombat$assign$function_____("opener");
+
+<!--
+if (typeof hbx  == 'undefined') {
+//EXECUTE THIS ONLY IF CALLING PAGE DIDNT CONTAIN hbx definition!!! 
+    var _hbEC=0,_hbE=new Array;
+    function _hbEvent(a,b){b=_hbE[_hbEC++]=new Object();b._N=a;b._C=0;return b;}
+    var hbx=_hbEvent("pv");
+}
+
+hbx.vpc="HBX0103u";
+hbx.gn="a.forum.nokia.com";
+
+ //BEGIN EDITABLE SECTION
+//CONFIGURATION VARIABLES
+hbx.acct="DM520219O9SE97EN3";
+
+if (document.domain.substring(0, 2) == "qa" || document.domain.substring(0, 6) == "www.qa") {
+  //TEST ACCOUNT
+   hbx.acct="DM5512199JAA";
+
+    // do not disable collection of statistics for QA, but may need to do it for production version.
+    //hbx.hec=1;
+
+}
+
+
+s.channel="nokia:nokia.com:fw";
+s.server="forum.nokia.com";
+s.events="event14";
+s.prop1="";
+s.prop2="";
+s.prop3="";
+s.prop4="";
+
+
+// first we try to get value from PATH.N.LABEL if not them then from hbx.mlc, and hbx.pn, and if none found default to HBX
+// page naming (TODO: it may not work for SC).
+
+//retieve value from the last metatag with a given name and use it if value is not DEFAULT_VALUE_IGNORE
+function tmp_get_tag_value(tmp_tag_name, default_value){
+    var tmp_content_value = null;
+    var tmp_tag_value = document.getElementsByName(tmp_tag_name);
+
+    if (null != tmp_tag_value && tmp_tag_value.length > 0) {
+            //take last elm of the array
+            tmp_content_value =
+            ('___' == tmp_tag_value[tmp_tag_value.length -1].content?null:
+             tmp_tag_value[tmp_tag_value.length -1].content);
+    }
+
+    var ret_val = null == tmp_content_value ? default_value : tmp_content_value;
+
+    if (null != ret_val) {
+        ret_val = ret_val.replace(/[ "&!#$%^*:|\/><~']/g, "+");
+    }
+    
+    return ret_val;
+}
+
+
+
+function stats_custom() {
+    this.DEBUG_MODE = false;
+    this.COOKIE_DOMAIN = ".forum.nokia.com";
+    this.HOME_LABEL_ID = "Home";
+    this.DEFAULT_PATCH_URL = "#";
+}
+
+
+stats_custom.prototype.init = function() {
+    this.parseMetaData();
+}
+
+
+stats_custom.prototype.parseMetaData = function() {
+    var allmetadata = document.getElementsByTagName("meta");
+
+    var regex_label = new RegExp("PATH\\.(\\d+)\\.LABEL");
+    var regex_url = new RegExp("PATH\\.(\\d+)\\.URL");
+
+    this.allFoundMatchingRexExMetaLABELs = new Array();
+    this.allFoundMatchingRegExMetaURLs = new Array();
+
+    for (var i = 0; i < allmetadata.length; i++) {
+
+        var match_label = regex_label.exec(allmetadata[i].getAttribute("name"));
+        if (match_label) {
+            var idx = match_label[1];
+
+            this.allFoundMatchingRexExMetaLABELs[idx - 1] = allmetadata[i].getAttribute("content");
+        }
+
+
+        var match_url = regex_url.exec(allmetadata[i].getAttribute("name"));
+        if (match_url) {
+            var idx = match_url[1];
+            this.allFoundMatchingRegExMetaURLs[idx - 1] = allmetadata[i].getAttribute("content");
+
+        }
+
+    }
+
+
+    if (0 == this.allFoundMatchingRexExMetaLABELs.length) {
+        this.NO_META_DATA = 1;
+    }
+
+    //check if all labels are defined (from index 0)
+    for (var i = 0; i < this.allFoundMatchingRexExMetaLABELs.length; i++) {
+        //allFoundMatchingMetaLABELs[i];
+        if (null == this.allFoundMatchingRexExMetaLABELs[i]) {
+            if (this.DEBUG_MODE) {
+                alert("err41: some of PATH.{n}.LABEL are not defined (check sequence numbering) PATH." + (i + 1));
+            }
+        }
+    }
+
+    //patch the length of URLs:
+    if (this.allFoundMatchingRegExMetaURLs.length < this.allFoundMatchingRexExMetaLABELs.length) {
+        //ensure the length is the same
+        this.allFoundMatchingRegExMetaURLs[this.allFoundMatchingRexExMetaLABELs.length-1] = null;
+    }
+
+    //CHECK that URLs are defined and patch L1 & L2 from the model if they are not defined in metadata
+
+    if (this.allFoundMatchingRexExMetaLABELs.length <= this.allFoundMatchingRegExMetaURLs.length ) {
+        //for each label there should be a URL defined
+        //OK, alredy patched
+    } else {
+        //not enough URL definitions, shouldnt happen, since they were patched
+        if (this.DEBUG_MODE) {
+            alert("err43");
+        }
+        return;
+    }
+
+}
+
+
+
+stats_custom.prototype.getMLC = function() {
+
+    if (1 == this.NO_META_DATA) {
+        return "CONTENT+CATEGORY";
+    }
+
+    if (null != this.allFoundMatchingRexExMetaLABELs && this.allFoundMatchingRexExMetaLABELs.length > 0) {
+
+        var ret = "";
+        for (var i = 0; i < this.allFoundMatchingRexExMetaLABELs.length -1; i++) {
+            ret = ret + "/" + (this.allFoundMatchingRexExMetaLABELs[i].replace(/[ "&!#$%^*:|\/><~']/g, "+"));
+        }
+
+        if (0 == ret.length) {
+            return "/"
+        } else {
+            return ret;
+        }
+
+    } else {
+        return null;
+    }
+
+}
+
+
+stats_custom.prototype.getPN = function() {
+
+    if (1 == this.NO_META_DATA) {
+        return "PUT+PAGE+NAME+HERE";
+    }
+
+    if (null != this.allFoundMatchingRexExMetaLABELs && this.allFoundMatchingRexExMetaLABELs.length > 0) {
+        return this.allFoundMatchingRexExMetaLABELs[this.allFoundMatchingRexExMetaLABELs.length-1].replace(/[ "&!#$%^*:|\/><~']/g, "+");
+    } else {
+        return null;
+    }
+}
+
+
+var stats_custom_instance = new stats_custom();
+stats_custom_instance.init();
+
+
+
+//PAGE NAME, use data from PATH.(N).LABEL if possible typeof override_navi_language == 'number'
+var tmp_ret = tmp_get_tag_value('hbx.pn', typeof stats_custom_instance != 'undefined' ? stats_custom_instance.getPN():"PUT+PAGE+NAME+HERE");
+if (null != tmp_ret) {
+    if (document.domain.substring(0, 2) == "qa" || document.domain.substring(0, 6) == "www.qa") {
+        tmp_ret = "_STAGE_" +  tmp_ret;
+    }
+    hbx.pn=tmp_ret;
+    s.pageName=tmp_ret;
+
+}
+
+//MULTI-LEVEL CONTENT CATEGORY, use data from PATH.(N).LABEL if possible
+var tmp_ret = tmp_get_tag_value('hbx.mlc', typeof stats_custom_instance != 'undefined' ? stats_custom_instance.getMLC():"CONTENT+CATEGORY");
+if (null != tmp_ret ) {
+    if (document.domain.substring(0, 2) == "qa"  || document.domain.substring(0, 6) == "www.qa") {
+        tmp_ret = "/_STAGE_" +  tmp_ret;
+    }
+    
+    hbx.mlc=tmp_ret;
+  tmp_ret=tmp_ret.replace(/\//g,":");
+    s.hier1="nokia:nokia.com:fw:forum"+tmp_ret;
+    if(tmp_ret==":") tmp_ret="";
+    else tmp_ret=":";
+    s.pageName=s.hier1+tmp_ret+s.pageName;
+    // Replace + by spaces
+    s.pageName=s.pageName.replace(/\+/g," ");
+    s.hier1=s.hier1.replace(/\+/g," ");
+    s.hier1=s.hier1.toLowerCase();
+    s.pageName=s.pageName.toLowerCase();
+
+
+}
+
+//DEFAULT PAGE NAME
+var tmp_ret = tmp_get_tag_value('hbx.pndef', 'title');
+if (null != tmp_ret ) {
+    hbx.pndef=tmp_ret;
+}
+
+//DEFAULT CONTENT CATEGORY
+var tmp_ret = tmp_get_tag_value('hbx.ctdef', 'full');
+if (null != tmp_ret ) {
+    hbx.ctdef=tmp_ret;
+}
+
+
+//OPTIONAL PAGE VARIABLES
+//ACTION SETTINGS
+hbx.fv="";//FORM VALIDATION MINIMUM ELEMENTS OR SUBMIT FUNCTION NAME
+
+
+//LINK TRACKING
+var tmp_ret = tmp_get_tag_value('hbx.lt', 'auto');
+if (null != tmp_ret ) {
+    hbx.lt=tmp_ret;
+}
+
+
+
+//DOWNLOAD FILTER
+var tmp_ret = tmp_get_tag_value('hbx.dlf', 'n');
+if (null != tmp_ret ) {
+    hbx.dlf=tmp_ret;
+}
+
+
+//DOWNLOAD FILE NAMING
+var tmp_ret = tmp_get_tag_value('hbx.dft', 'n');
+if (null != tmp_ret ) {
+    hbx.dft=tmp_ret;
+}
+
+
+//EXIT LINK FILTER
+var tmp_ret = tmp_get_tag_value('hbx.elf', 'n');
+if (null != tmp_ret ) {
+    hbx.elf=tmp_ret;
+}
+
+
+
+//SEGMENTS AND FUNNELS
+hbx.seg="";//VISITOR SEGMENTATION
+hbx.fnl="";//FUNNELS
+
+//CAMPAIGNS
+hbx.cmp="";//CAMPAIGN ID
+hbx.cmpn="";//CAMPAIGN ID IN QUERY
+hbx.dcmp="";//DYNAMIC CAMPAIGN ID
+hbx.dcmpn="";//DYNAMIC CAMPAIGN ID IN QUERY
+hbx.dcmpe="";//DYNAMIC CAMPAIGN EXPIRATION
+hbx.dcmpre="";//DYNAMIC CAMPAIGN RESPONSE EXPIRATION
+hbx.hra="";//RESPONSE ATTRIBUTE
+hbx.hqsr="";//RESPONSE ATTRIBUTE IN REFERRAL QUERY
+hbx.hqsp="";//RESPONSE ATTRIBUTE IN QUERY
+hbx.hlt="";//LEAD TRACKING
+hbx.hla="";//LEAD ATTRIBUTE
+hbx.gp="";//CAMPAIGN GOAL
+hbx.gpn="";//CAMPAIGN GOAL IN QUERY
+hbx.hcn="";//CONVERSION ATTRIBUTE
+hbx.hcv="";//CONVERSION VALUE
+
+//LEGACY CAMPAIGN
+var tmp_ret = tmp_get_tag_value('hbx.cp','null');
+if (null != tmp_ret ) {
+    hbx.cp=tmp_ret;
+}
+
+
+
+hbx.cpd="";//CAMPAIGN DOMAIN
+
+//CUSTOM VARIABLES
+hbx.ci="";//CUSTOMER ID
+
+
+var tmp_ret = tmp_get_tag_value('hbx.hc1');
+if (null != tmp_ret ) {
+    hbx.hc1=tmp_ret;
+    s.prop36=tmp_ret;
+}
+
+var tmp_ret = tmp_get_tag_value('hbx.hc2');
+if (null != tmp_ret ) {
+    hbx.hc2=tmp_ret;
+    s.prop39=tmp_ret;
+}
+
+
+hbx.hc3="";//CUSTOM 3
+hbx.hc4="";//CUSTOM 4
+hbx.hrf="";//CUSTOM REFERRER
+hbx.pec="";//ERROR CODES
+
+//INSERT CUSTOM EVENTS
+
+//END EDITABLE SECTION
+//REQUIRED SECTION. CHANGE "YOURSERVER" TO VALID LOCATION ON YOUR WEB SERVER (HTTPS IF FROM SECURE SERVER)
+
+/************* DO NOT ALTER ANYTHING BELOW THIS LINE ! **************/
+var s_code=s.t();if(s_code)document.write(s_code)//-->
+
+
+}
+/*
+     FILE ARCHIVED ON 22:21:41 Nov 28, 2010 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 10:34:15 Jun 01, 2024.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+*/
+/*
+playback timings (ms):
+  captures_list: 0.872
+  exclusion.robots: 0.1
+  exclusion.robots.policy: 0.087
+  esindex: 0.013
+  cdx.remote: 26.046
+  LoadShardBlock: 160.762 (3)
+  PetaboxLoader3.resolve: 2479.978 (3)
+  PetaboxLoader3.datanode: 1441.88 (5)
+  load_resource: 3866.428 (2)
+*/
